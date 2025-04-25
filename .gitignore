@@ -1,0 +1,32 @@
+# Node.js dependencies
+node_modules/
+
+# Frontend dependencies
+frontend/node_modules/
+
+# Backend dependencies
+backend/node_modules/
+
+# Build artifacts
+frontend/build/
+backend/build/
+dist/
+build/
+
+# Environment variables
+.env
+frontend/.env
+backend/.env
+*.env.local
+*.env.development.local
+*.env.test.local
+*.env.production.local
+
+# IDE specific files
+.idea/
+.vscode/
+*.iml
+
+# OS generated files
+.DS_Store
+Thumbs.db
