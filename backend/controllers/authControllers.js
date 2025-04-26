@@ -2,6 +2,7 @@ import express from "express";
 import User from "../models/user.js";
 import { generateAccessToken, generateRefreshToken } from "../utils/generateTokens.js";
 import sendOTP from "../utils/sendOTP.js";
+import jwt from 'jsonwebtoken';
 
 export const registerUser = async (req, res) => {
   const { name, userName, email, password } = req.body;
@@ -128,4 +129,53 @@ export const getUserProfile = async (req, res) => {
     name: req.user.name,
     email: req.user.email,
   });
+};
+
+
+//refresh token
+
+export const refreshAccessToken = async (req, res) => {
+  try {
+    const token = req.cookies.refreshToken;
+    if (!token) {
+      return res.status(401).json({ message: "No refresh token, please login again" });
+    }
+
+    // Verify Refresh Token
+    jwt.verify(token, process.env.JWT_REFRESH_SECRET, async (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ message: "Invalid or expired refresh token, please login again" });
+      }
+
+      // Find User
+      const user = await User.findById(decoded.id);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      // Generate New Access Token
+      const newAccessToken = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+        expiresIn: "15m",
+      });
+
+      res.json({ token: newAccessToken });
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const logoutUser = async (req, res) => {
+  try {
+    // Clear the refresh token cookie
+    res.clearCookie("refreshToken", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    res.status(200).json({ message: "Logged out successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
 };

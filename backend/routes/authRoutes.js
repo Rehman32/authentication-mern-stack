@@ -1,6 +1,6 @@
 import express from 'express';
 import passport from 'passport';
-import {registerUser,loginUser,getUserProfile,verifyOtp} from "../controllers/authControllers.js";
+import {registerUser,loginUser,getUserProfile,verifyOtp,refreshAccessToken,logoutUser} from "../controllers/authControllers.js";
 import protect from "../middlewares/authmiddleware.js";
 
 const router =express.Router();
@@ -9,6 +9,8 @@ router.post('/register',registerUser);
 router.post('/login',loginUser);
 router.post("/verify-otp", verifyOtp);
 router.get('/profile',protect,getUserProfile); //protected Route
+router.get("/refresh-token", refreshAccessToken);
+router.post("/logout", logoutUser);
 
 //Google 
 router.get('/google',passport.authenticate('google',{scope: ["profile","email"]}));
